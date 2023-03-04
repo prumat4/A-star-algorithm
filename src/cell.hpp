@@ -2,8 +2,11 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <vector>
 
-#define SIZE 30
+#define CELL_SIZE 30
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 class Cell
 {
@@ -20,9 +23,10 @@ public:
     int gCost;
 
     Cell* parent;
-
+    SDL_Rect sdl_rect;
 
     Cell();
+    Cell(const int x, const int y);
     
     bool operator == (const Cell&);
     bool operator != (const Cell&);
@@ -51,6 +55,30 @@ Cell::Cell()
     hCost = 0;
     gCost = 0;
 
+    sdl_rect.x = x * CELL_SIZE;
+    sdl_rect.y = y * CELL_SIZE;
+    sdl_rect.w = sdl_rect.h = CELL_SIZE;
+
+	parent = nullptr;
+}
+
+Cell::Cell(int x, int y)
+{
+    this->x = x;
+	this->y = y;
+	
+	walkable = true;
+	isStart = false;
+	isEnd = false;
+	isInPath = false;
+
+    hCost = 0;
+    gCost = 0;
+
+    sdl_rect.x = x * CELL_SIZE;
+    sdl_rect.y = y * CELL_SIZE;
+    sdl_rect.w = sdl_rect.h = CELL_SIZE;
+
 	parent = nullptr;
 }
 
@@ -61,7 +89,7 @@ bool Cell::operator ==(const Cell &cell)
     return false;
 }
 
-bool Cell::operator ==(const Cell &cell)
+bool Cell::operator !=(const Cell &cell)
 { 
     return !(*this == cell);
 }
@@ -79,7 +107,10 @@ Cell &Cell::operator=(const Cell &cell)
     this->hCost = cell.hCost;
     this->gCost = cell.gCost;
 
+    this->sdl_rect = cell.sdl_rect;
     this->parent = cell.parent;
+
+    return *this;
 }
 
 int Cell::fCost()
