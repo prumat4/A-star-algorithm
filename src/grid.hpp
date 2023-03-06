@@ -10,7 +10,6 @@ public:
 
     auto getCellsVector() { return CellsVector; }
 
-	void GetMouseCoordinates(int&, int&);
 
     void setStart(int, int);
     void setEnd(int, int);    
@@ -26,20 +25,6 @@ Grid::Grid()
             CellsVector.push_back(temporaryCell);
         }
 
-}
-
-void Grid::GetMouseCoordinates(int& x, int& y)
-{	
-	SDL_GetMouseState(&x, &y);
-
-	int tempX = x % CELL_SIZE;
-	int tempY = y % CELL_SIZE;
-	
-	x -= tempX;
-	y -= tempY;
-	
-	x = x / CELL_SIZE;
-	y = y / CELL_SIZE;
 }
 
 void Grid::setStart(int x, int y)

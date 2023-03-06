@@ -1,6 +1,6 @@
 #pragma once
 
-#include "grid.hpp"
+#include "pathfinding.hpp"
 
 class Window
 {

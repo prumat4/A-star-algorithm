@@ -26,7 +26,7 @@ class Cell
 
 public:
     Cell();
-    Cell(const int x, const int y);
+    Cell(const int, const int);
     
     bool operator == (const Cell&);
     bool operator != (const Cell&);

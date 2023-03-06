@@ -5,7 +5,7 @@
 class Run
 {
     Window window;
-    Grid grid;
+    PathFinding grid;
 
 public:
     void drawWalkable(SDL_Renderer*, Cell&);
@@ -58,8 +58,9 @@ void Run::drawPath(SDL_Renderer *sdl_renderer, Cell& cell)
 }
 
 void Run::drawGrid()
-{
-	for(auto cell : grid.getCellsVector())
+{	
+	auto myGrid = grid.getGrid();
+	for(auto cell : myGrid.getCellsVector())
 	{   
         if(cell.IsWalkable())
             drawWalkable(window.getRenderer(), cell);
@@ -86,7 +87,7 @@ void Run::run()
 			if(sdl_event.type == SDL_QUIT)
 				isRunning = false;
 			else if(sdl_event.type == SDL_KEYDOWN)
-			{	// mb refactor this switch statement
+			{	// refactor
 				switch(sdl_event.key.keysym.sym)
 				{
 					case SDLK_ESCAPE:
@@ -100,7 +101,7 @@ void Run::run()
 				grid.GetMouseCoordinates(x, y);
 
 				const Uint8* state = SDL_GetKeyboardState(NULL);
-				
+				// refactor 
 				if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])
 					grid.setStart(x, y);
 				else if(state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT])
