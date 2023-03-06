@@ -98,7 +98,7 @@ void Run::run()
 			else if(sdl_event.type == SDL_MOUSEBUTTONDOWN)
 			{	
 				int x, y;
-				grid.GetMouseCoordinates(x, y);
+				grid.getMouseCoordinates(x, y);
 
 				const Uint8* state = SDL_GetKeyboardState(NULL);
 				// refactor 
@@ -114,7 +114,8 @@ void Run::run()
 		SDL_RenderClear(window.getRenderer());
 
         drawGrid();
-
+		Cell cell = grid.getGrid().getStart();
+		grid.getNeighbours(cell);
 		SDL_RenderPresent(window.getRenderer());
     }
 }

@@ -10,10 +10,14 @@ public:
 
     auto getCellsVector() { return CellsVector; }
 
-
     void setStart(int, int);
     void setEnd(int, int);    
     void setObstacle(int, int);
+
+    Cell& getCell(int, int);
+    Cell& getStart();
+
+    void moveCell(Cell cell);
 };
 
 Grid::Grid()
@@ -32,11 +36,11 @@ void Grid::setStart(int x, int y)
 	for(int i = 0; i < CellsVector.size(); i++)
 	{
 		if(CellsVector.at(i).IsStart())
-			CellsVector.at(i).SetWalkable();
+			CellsVector.at(i).setWalkable();
 
 		if(CellsVector.at(i).getX() == x && CellsVector.at(i).getY() == y)
 		{
-			CellsVector.at(i).SetIsStart();
+			CellsVector.at(i).setIsStart();
 		}
 	}
 }
@@ -46,11 +50,11 @@ void Grid::setEnd(int x, int y)
 	for(int i = 0; i < CellsVector.size(); i++)
 	{
 		if(CellsVector.at(i).IsEnd())
-			CellsVector.at(i).SetWalkable();
+			CellsVector.at(i).setWalkable();
 
 		if(CellsVector.at(i).getX() == x && CellsVector.at(i).getY() == y)
 		{
-			CellsVector.at(i).SetIsEnd();
+			CellsVector.at(i).setIsEnd();
 		}
 	}
 }
@@ -62,12 +66,46 @@ void Grid::setObstacle(int x, int y)
 		if(CellsVector.at(i).getX() == x && CellsVector.at(i).getY() == y)
 		{	
 			if(CellsVector.at(i).IsWalkable())
-				CellsVector.at(i).SetObstacle();
+				CellsVector.at(i).setObstacle();
 			else
 			{
-				CellsVector.at(i).SetWalkable();
+				CellsVector.at(i).setWalkable();
 				break;
 			}	
 		}
+	}
+}
+
+Cell &Grid::getCell(int x, int y)
+{
+    for(int i = 0; i < CellsVector.size(); i++) 
+    {
+        if(CellsVector.at(i).getX() == x && CellsVector.at(i).getY() == y)
+            return CellsVector.at(i);
+    }
+
+    return *CellsVector.end();
+}
+// clear last row in function declaration
+Cell &Grid::getStart()
+{
+	for(int i = 0; i < CellsVector.size(); i++)
+	{
+		if(CellsVector.at(i).IsStart())
+			return CellsVector.at(i);
+	} 
+
+    return CellsVector.at(0);
+}
+
+void Grid::moveCell(Cell cell)
+{
+	for(int i = 0; i < CellsVector.size(); i++)
+	{
+		if(cell.getX() == CellsVector.at(i).getX() && cell.getY() == CellsVector.at(i).getY())
+			{
+				CellsVector.at(i) = cell;
+				break;
+			}
 	}
 }

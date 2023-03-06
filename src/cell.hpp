@@ -48,11 +48,11 @@ public:
     Cell* getParent() { return parent; }
     SDL_Rect getRect() { return sdl_rect; }
 
-    void SetIsStart();
-	void SetIsEnd();
-	void SetWalkable();
-	void SetObstacle();
-	void SetIsInPath();
+    void setIsStart();
+	void setIsEnd();
+	void setWalkable();
+	void setObstacle();
+	void setIsInPath();
 };
 
 Cell::Cell()
@@ -131,7 +131,7 @@ int Cell::fCost()
     return gCost + hCost;
 }
 
-void Cell::SetIsStart()
+void Cell::setIsStart()
 {
 	isStart = true;
 	isEnd = false;
@@ -139,7 +139,7 @@ void Cell::SetIsStart()
 	isInPath = false;
 }
 
-void Cell::SetIsEnd()
+void Cell::setIsEnd()
 {
 	isEnd = true;
 	isStart = false;
@@ -147,7 +147,7 @@ void Cell::SetIsEnd()
 	isInPath = false;
 }
 
-void Cell::SetWalkable()
+void Cell::setWalkable()
 {
     isEnd = false;
     isStart = false;
@@ -155,7 +155,7 @@ void Cell::SetWalkable()
 	isInPath = false;
 }
 
-void Cell::SetObstacle()
+void Cell::setObstacle()
 {
     isEnd = false;
     isStart = false;
@@ -163,7 +163,7 @@ void Cell::SetObstacle()
 	isInPath = false;
 }
 
-void Cell::SetIsInPath()
+void Cell::setIsInPath()
 {
 	isEnd = false;
     isStart = false;
