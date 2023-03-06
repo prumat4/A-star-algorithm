@@ -10,7 +10,6 @@
 
 class Cell
 {
-public:
     int x;
     int y;
 
@@ -25,6 +24,7 @@ public:
     Cell* parent;
     SDL_Rect sdl_rect;
 
+public:
     Cell();
     Cell(const int x, const int y);
     
@@ -34,6 +34,19 @@ public:
     Cell& operator = (const Cell&);
     
     int fCost();
+
+    int getX() { return x; }
+    int getY() { return y; }
+    int getHCost() { return hCost; }
+    int getGCost() { return gCost; }
+
+    bool IsWalkable() { return walkable; }
+    bool IsStart() { return isStart; }
+    bool IsEnd() { return isEnd; }
+    bool IsInPath() { return isInPath; }
+
+    Cell* getParent() { return parent; }
+    SDL_Rect getRect() { return sdl_rect; }
 
     void SetIsStart();
 	void SetIsEnd();

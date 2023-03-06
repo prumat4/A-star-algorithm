@@ -4,9 +4,12 @@
 
 class Window
 {
-public:
     SDL_Window *sdl_window { nullptr };
     SDL_Renderer *sdl_renderer { nullptr };
+public:
+
+    SDL_Window* getWindow() { return sdl_window; }
+    SDL_Renderer* getRenderer() { return sdl_renderer; }
 
     Window();
     ~Window();

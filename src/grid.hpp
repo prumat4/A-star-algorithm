@@ -4,10 +4,11 @@
 
 class Grid
 {
-public:
     std::vector<Cell> CellsVector;
-
+public:
     Grid();
+    auto getCellsVector() { return CellsVector; }
+    
 };
 
 Grid::Grid()
