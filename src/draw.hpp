@@ -2,39 +2,23 @@
 
 #include "window.hpp"
 
-class Draw
+class Run
 {
     Window window;
     Grid grid;
 
 public:
-    void DrawWalkable(SDL_Renderer*, Cell&);
-	void DrawObstacle(SDL_Renderer*, Cell&);
-	void DrawStart(SDL_Renderer*, Cell&);
-	void DrawEnd(SDL_Renderer*, Cell&);
-	void DrawPath(SDL_Renderer*, Cell&);
+    void drawWalkable(SDL_Renderer*, Cell&);
+	void drawObstacle(SDL_Renderer*, Cell&);
+	void drawStart(SDL_Renderer*, Cell&);
+	void drawEnd(SDL_Renderer*, Cell&);
+	void drawPath(SDL_Renderer*, Cell&);
 
-	// void GetMouseCoordinates(int& x, int& y);
-    void DrawGrid();
-    void Run();
+    void drawGrid();
+    void run();
 };
 
-// should i move this to other header and thimk about logic 
-// void Draw::GetMouseCoordinates(int& x, int& y)
-// {	
-// 	SDL_GetMouseState(&x, &y);
-
-// 	int tempX = x % CELL_SIZE;
-// 	int tempY = y % CELL_SIZE;
-	
-// 	x -= tempX;
-// 	y -= tempY;
-	
-// 	x = x / CELL_SIZE;
-// 	y = y / CELL_SIZE;
-// }
-
-void Draw::DrawStart(SDL_Renderer *sdl_renderer, Cell& cell)
+void Run::drawStart(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 0, 255, 0, 0);
 	SDL_Rect rect = cell.getRect();
@@ -42,7 +26,7 @@ void Draw::DrawStart(SDL_Renderer *sdl_renderer, Cell& cell)
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Draw::DrawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
+void Run::drawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 255, 0, 0, 0);
 	SDL_Rect rect = cell.getRect();
@@ -50,7 +34,7 @@ void Draw::DrawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Draw::DrawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
+void Run::drawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 0);
 	SDL_Rect rect = cell.getRect();
@@ -58,14 +42,14 @@ void Draw::DrawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Draw::DrawWalkable(SDL_Renderer *sdl_renderer, Cell& cell)
+void Run::drawWalkable(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 0, 34, 75, 0);
 	SDL_Rect rect = cell.getRect();
 	SDL_RenderDrawRect(sdl_renderer, &rect);
 }
 
-void Draw::DrawPath(SDL_Renderer *sdl_renderer, Cell& cell)
+void Run::drawPath(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 0, 0);
 	SDL_Rect rect = cell.getRect();
@@ -73,66 +57,62 @@ void Draw::DrawPath(SDL_Renderer *sdl_renderer, Cell& cell)
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Draw::DrawGrid()
+void Run::drawGrid()
 {
 	for(auto cell : grid.getCellsVector())
 	{   
         if(cell.IsWalkable())
-            DrawWalkable(window.getRenderer(), cell);
+            drawWalkable(window.getRenderer(), cell);
 		if(cell.IsStart())
-			DrawStart(window.getRenderer(), cell);
+			drawStart(window.getRenderer(), cell);
 		if(cell.IsEnd())
-			DrawEnd(window.getRenderer(), cell);
+			drawEnd(window.getRenderer(), cell);
 		if(cell.IsInPath())
-			DrawPath(window.getRenderer(), cell);
+			drawPath(window.getRenderer(), cell);
 		if(!(cell.IsWalkable()))
-			DrawObstacle(window.getRenderer(), cell);
+			drawObstacle(window.getRenderer(), cell);
 	}
 }
 
-void Draw::Run()
+void Run::run()
 {
 	SDL_Event sdl_event;   
     bool isRunning = true;
 
 	while(isRunning)
     {	
-		// while(SDL_PollEvent(&sdl_event) != 0)
-		// {
-		// 	if(sdl_event.type == SDL_QUIT)
-		// 		isRunning = false;
-		// 	else if(sdl_event.type == SDL_KEYDOWN)
-		// 	{	// mb refactor this switch statement
-		// 		switch(sdl_event.key.keysym.sym)
-		// 		{
-		// 			case SDLK_ESCAPE:
-		// 				isRunning = false;
-		// 				break;
-		// 		}
-		// 	}
-		// 	else if(sdl_event.type == SDL_MOUSEBUTTONDOWN)
-		// 	{	
-		// 		int x, y;
-		// 		GetMouseCoordinates(x, y);
+		while(SDL_PollEvent(&sdl_event) != 0)
+		{
+			if(sdl_event.type == SDL_QUIT)
+				isRunning = false;
+			else if(sdl_event.type == SDL_KEYDOWN)
+			{	// mb refactor this switch statement
+				switch(sdl_event.key.keysym.sym)
+				{
+					case SDLK_ESCAPE:
+						isRunning = false;
+						break;
+				}
+			}
+			else if(sdl_event.type == SDL_MOUSEBUTTONDOWN)
+			{	
+				int x, y;
+				grid.GetMouseCoordinates(x, y);
 
-		// 		const Uint8* state = SDL_GetKeyboardState(NULL);
+				const Uint8* state = SDL_GetKeyboardState(NULL);
 				
-		// 		if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])
-		// 		{
-		// 			SetStartCell(x, y);
-		// 		}
-		// 		else if(state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT])
-		// 		{
-		// 			SetEndCell(x,y);
-		// 		}
-		// 		else
-		// 			SetObstacleCell(x, y);
-		// 	}
-		// }
+				if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])
+					grid.setStart(x, y);
+				else if(state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT])
+					grid.setEnd(x,y);
+				else
+					grid.setObstacle(x, y);
+			}
+		}
 		SDL_SetRenderDrawColor(window.getRenderer(), 255, 255, 255, 255);
 		SDL_RenderClear(window.getRenderer());
 
-        DrawGrid();
+        drawGrid();
 
 		SDL_RenderPresent(window.getRenderer());
     }

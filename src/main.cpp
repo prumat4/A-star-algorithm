@@ -2,9 +2,9 @@
 
 int main()
 {
-    Draw draw;
+    Run maze;
 
-    draw.Run();
+    maze.run();
     
     return 0;
 }
