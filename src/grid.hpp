@@ -21,6 +21,8 @@ public:
     void moveCell(Cell cell);
     bool pathExists();
 	int getDistance(Cell&, Cell&);
+
+	void clearParents();
 };
 
 Grid::Grid()
@@ -128,6 +130,14 @@ void Grid::moveCell(Cell cell)
 				CellsVector.at(i) = cell;
 				break;
 			}
+	}
+}
+
+void Grid::clearParents()
+{
+	for(int i = 0; i < CellsVector.size(); i++)
+	{
+		CellsVector.at(i).clearParent();
 	}
 }
 

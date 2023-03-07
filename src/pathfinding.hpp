@@ -131,74 +131,60 @@ void PathFinding::retracePath(Cell& start, Cell& end)
 
 void PathFinding::findPath()
 {   
-    // Cell start = grid.getStart();
-    // Cell end = grid.getEnd();
-    Cell start = grid.getCell(9, 14);
-    start.setIsStart();
-    grid.moveCell(start);
- 
-    Cell end = grid.getCell(31, 9);
-    end.setIsEnd();
-    grid.moveCell(end);
+    grid.clearParents();
+    Cell start, end;
+    grid.getStart(start);
+    grid.getEnd(end);
 
-    std::vector<Cell> openSet, closedSet;
-    openSet.push_back(start);
-
-    while(openSet.size() > 0)
+    if(grid.pathExists())
     {
-        // sort(openSet.begin(), openSet.end(), [](Cell cell1, Cell cell2){
-        //     return(cell1.fCost() <= cell2.fCost() && cell1.getHCost() < cell2.getHCost());
-        // });
+        std::vector<Cell> openSet, closedSet;
+        openSet.push_back(start);
 
-        Cell cell = openSet.at(0);
+        while(openSet.size() > 0)
+        {
+            Cell cell = openSet.at(0);
         
-        // for (int i = 1; i < openSet.size(); i++) 
-        // {
-        //     if (openSet[i].fCost() < cell.fCost() || openSet[i].fCost() == cell.fCost())
-        //     {
-        //         if (openSet[i].getHCost() < cell.getHCost())
-        //             cell = openSet[i];
-        //     }
-        // }
-
-        auto itr = openSet.begin() + 1;
-        auto cellItr = openSet.begin();
-        for(itr; itr != openSet.end(); itr++)
-        {
-            if((*itr).fCost() <= cell.fCost() && (*itr).getHCost() < cell.fCost())
+            auto itr = openSet.begin() + 1;
+            auto cellItr = openSet.begin();
+            for(itr; itr != openSet.end(); itr++)
             {
-                cell = *itr;
-                cellItr = itr;
+                if((*itr).fCost() <= cell.fCost() && (*itr).getHCost() < cell.fCost())
+                {
+                    cell = *itr;
+                    cellItr = itr;
+                }
+            }
+
+            openSet.erase(cellItr);
+            closedSet.push_back(cell);
+
+            if(cell.IsEnd())
+            {
+                retracePath(start, end);
+                break;
+            }
+
+            for(auto neighbour : getNeighbours(cell))
+            {
+                if(!(neighbour.IsWalkable()) || containsVector(closedSet, neighbour))
+                    continue;
+
+                int newCostToNeighbour = cell.getGCost() + grid.getDistance(cell, neighbour);
+                if(newCostToNeighbour < neighbour.getGCost() || !containsVector(openSet, neighbour))
+                {
+                    neighbour.setGCost(newCostToNeighbour);
+                    neighbour.setHCost(grid.getDistance(neighbour, end));
+                    neighbour.setParent(cell);
+                    grid.moveCell(neighbour);
+
+                    if(!containsVector(openSet, neighbour))
+                        openSet.push_back(neighbour);
+                }
             }
         }
 
-        // openSet.erase(openSet.begin());
-        openSet.erase(cellItr);
-        closedSet.push_back(cell);
-
-        if(cell.IsEnd())
-        {
-            retracePath(start, end);
-            break;
-        }
-
-        for(auto neighbour : getNeighbours(cell))
-        {
-            if(!(neighbour.IsWalkable()) || containsVector(closedSet, neighbour))
-                continue;
-            
-            int newCostToNeighbour = cell.getGCost() + grid.getDistance(cell, neighbour);
-            if(newCostToNeighbour < neighbour.getGCost() || !containsVector(openSet, neighbour))
-            {
-                neighbour.setGCost(newCostToNeighbour);
-                neighbour.setHCost(grid.getDistance(neighbour, end));
-                neighbour.setParent(cell);
-                grid.moveCell(neighbour);
-                // grid.moveCell(cell);
-
-                if(!containsVector(openSet, neighbour))
-                    openSet.push_back(neighbour);
-            }
-        }
     }
+    else
+        clearPath();
 }

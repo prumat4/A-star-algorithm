@@ -13,6 +13,7 @@ public:
 	void drawStart(SDL_Renderer*, Cell&);
 	void drawEnd(SDL_Renderer*, Cell&);
 	void drawPath(SDL_Renderer*, Cell&);
+	void drawClosedSet(SDL_Renderer*, Cell&);
 
     void drawGrid();
     void run();
@@ -57,6 +58,14 @@ void Run::drawPath(SDL_Renderer *sdl_renderer, Cell& cell)
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
+void Run::drawClosedSet(SDL_Renderer *sdl_renderer, Cell& cell)
+{
+	SDL_SetRenderDrawColor(sdl_renderer, 255, 165, 0, 0);
+	SDL_Rect rect = cell.getRect();
+	SDL_RenderDrawRect(sdl_renderer, &rect);
+	SDL_RenderFillRect(sdl_renderer, &rect);
+}
+
 void Run::drawGrid()
 {	
 	auto myGrid = grid.getGrid();
@@ -64,14 +73,15 @@ void Run::drawGrid()
 	{   
 		if(cell.IsStart())
 			drawStart(window.getRenderer(), cell);
-		if(cell.IsEnd())
-			drawEnd(window.getRenderer(), cell);
 		if(cell.IsInPath())
 			drawPath(window.getRenderer(), cell);
-        if(cell.IsWalkable())
+		if(cell.IsEnd())
+			drawEnd(window.getRenderer(), cell);
+		if(cell.IsWalkable())
             drawWalkable(window.getRenderer(), cell);
 		if(!(cell.IsWalkable()))
 			drawObstacle(window.getRenderer(), cell);
+		
 	}
 }
 
@@ -114,8 +124,7 @@ void Run::run()
 		SDL_RenderClear(window.getRenderer());
 		
         drawGrid();
-		
-		// if(grid.getGrid().pathExists())
+
 		grid.findPath();
 			
 		SDL_RenderPresent(window.getRenderer());
