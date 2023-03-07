@@ -62,14 +62,14 @@ void Run::drawGrid()
 	auto myGrid = grid.getGrid();
 	for(auto cell : myGrid.getCellsVector())
 	{   
-        if(cell.IsWalkable())
-            drawWalkable(window.getRenderer(), cell);
 		if(cell.IsStart())
 			drawStart(window.getRenderer(), cell);
 		if(cell.IsEnd())
 			drawEnd(window.getRenderer(), cell);
 		if(cell.IsInPath())
 			drawPath(window.getRenderer(), cell);
+        if(cell.IsWalkable())
+            drawWalkable(window.getRenderer(), cell);
 		if(!(cell.IsWalkable()))
 			drawObstacle(window.getRenderer(), cell);
 	}
@@ -112,10 +112,12 @@ void Run::run()
 		}
 		SDL_SetRenderDrawColor(window.getRenderer(), 255, 255, 255, 255);
 		SDL_RenderClear(window.getRenderer());
-
+		
         drawGrid();
-		Cell cell = grid.getGrid().getStart();
-		grid.getNeighbours(cell);
+		
+		// if(grid.getGrid().pathExists())
+		grid.findPath();
+			
 		SDL_RenderPresent(window.getRenderer());
     }
 }

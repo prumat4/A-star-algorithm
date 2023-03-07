@@ -15,9 +15,12 @@ public:
     void setObstacle(int, int);
 
     Cell& getCell(int, int);
-    Cell& getStart();
+    void getStart(Cell&);
+    void getEnd(Cell&);
 
     void moveCell(Cell cell);
+    bool pathExists();
+	int getDistance(Cell&, Cell&);
 };
 
 Grid::Grid()
@@ -86,26 +89,55 @@ Cell &Grid::getCell(int x, int y)
 
     return *CellsVector.end();
 }
-// clear last row in function declaration
-Cell &Grid::getStart()
+
+void Grid::getStart(Cell& start)
 {
 	for(int i = 0; i < CellsVector.size(); i++)
 	{
 		if(CellsVector.at(i).IsStart())
-			return CellsVector.at(i);
+			start = CellsVector.at(i);
 	} 
+}
 
-    return CellsVector.at(0);
+void Grid::getEnd(Cell& end)
+{
+	for(int i = 0; i < CellsVector.size(); i++)
+	{
+		if(CellsVector.at(i).IsEnd())
+			end = CellsVector.at(i);
+	} 
+}
+
+bool Grid::pathExists()
+{
+    Cell start, end;
+	getStart(start);
+	getEnd(end);
+    if(start.IsStart() && end.IsEnd())
+        return true;
+
+    return false;
 }
 
 void Grid::moveCell(Cell cell)
 {
 	for(int i = 0; i < CellsVector.size(); i++)
 	{
-		if(cell.getX() == CellsVector.at(i).getX() && cell.getY() == CellsVector.at(i).getY())
+		if(cell == CellsVector.at(i))
 			{
 				CellsVector.at(i) = cell;
 				break;
 			}
 	}
+}
+
+int Grid::getDistance(Cell& cell1, Cell& cell2)
+{
+	int x = abs(cell1.getX() - cell2.getX());
+	int y = abs(cell1.getY() - cell2.getY());
+
+	if(x > y)
+		return 14*y + 10*(x - y);
+	
+	return 14*x + 10*(y - x);
 }
