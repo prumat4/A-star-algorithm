@@ -1,4 +1,4 @@
-#include "draw.hpp"
+#include "window.hpp"
 
 int main()
 {
