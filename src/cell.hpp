@@ -20,6 +20,7 @@ class Cell
     bool isEnd;
     bool isInPath;
 
+
     int hCost;
     int gCost;
 
@@ -46,6 +47,8 @@ public:
     
     int getParentX() { return parentX; }
     int getParentY() { return parentY; }
+
+    void clearParent();
 
     void setParent(Cell&);
 
@@ -147,6 +150,12 @@ void Cell::setParent(Cell& parent)
 {
     this->parentX = parent.x;
     this->parentY = parent.y;
+}
+
+void Cell::clearParent()
+{
+    parentX = x;
+    parentY = y;
 }
 
 int Cell::fCost()
