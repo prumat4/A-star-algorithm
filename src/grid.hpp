@@ -229,6 +229,10 @@ std::vector<Cell> PathFinding::getNeighbours(Cell cell)
 				}
         }
     }
+
+    if(neighbours.size() == 0)
+        clearPath();
+        
     return neighbours;
 }
 
