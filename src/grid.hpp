@@ -5,6 +5,7 @@
 class Grid
 {
     std::vector<Cell> CellsVector;
+
 public:
     Grid();
 
@@ -20,7 +21,7 @@ public:
 
     void moveCell(Cell cell);
     bool pathExists();
-	int getDistance(Cell&, Cell&);
+	int heuristics(Cell&, Cell&);
 
 	void clearParents();
 };
@@ -141,7 +142,7 @@ void Grid::clearParents()
 	}
 }
 
-int Grid::getDistance(Cell& cell1, Cell& cell2)
+int Grid::heuristics(Cell& cell1, Cell& cell2)
 {
 	int x = abs(cell1.getX() - cell2.getX());
 	int y = abs(cell1.getY() - cell2.getY());
@@ -152,9 +153,18 @@ int Grid::getDistance(Cell& cell1, Cell& cell2)
 	return 14*x + 10*(y - x);
 }
 
+// class Path
+// {
+//     std::vector<Cell> path;
+// public:
+//     std::vector<Cell> getPath() { return path; }
+//     void pushToPath(Cell cell) { path.push_back(cell); }
+// };
+
 class PathFinding
 {
     Grid grid;
+    Path path;
 public:
     Grid getGrid() { return grid; }
 
@@ -307,11 +317,11 @@ void PathFinding::updateNeighbourCell(Cell& current, Cell& neighbour, Cell& end,
     if(!(neighbour.IsWalkable()) || containsVector(closedSet, neighbour))
         return;
 
-    int newCostToNeighbour = current.getGCost() + grid.getDistance(current, neighbour);
+    int newCostToNeighbour = current.getGCost() + grid.heuristics(current, neighbour);
     if(newCostToNeighbour < neighbour.getGCost() || !containsVector(openSet, neighbour))
     {
         neighbour.setGCost(newCostToNeighbour);
-        neighbour.setHCost(grid.getDistance(neighbour, end));
+        neighbour.setHCost(grid.heuristics(neighbour, end));
         neighbour.setParent(current);
         grid.moveCell(neighbour);
 

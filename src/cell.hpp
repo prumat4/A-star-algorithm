@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+
 #include <vector>
 #include <algorithm>
 #include <math.h>
@@ -27,6 +27,7 @@ class Cell
     int parentX;
     int parentY;
     SDL_Rect sdl_rect;
+    
 
 public:
     Cell();

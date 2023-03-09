@@ -44,40 +44,52 @@ Window::~Window()
 }
 
 
-class Run
+class Draw
 {
-    Window window;
-    PathFinding grid;
-
+    Cell cell;
 public:
-    void drawWalkable(SDL_Renderer*, Cell&);
-	void drawObstacle(SDL_Renderer*, Cell&);
-	void drawStart(SDL_Renderer*, Cell&);
-	void drawEnd(SDL_Renderer*, Cell&);
-	void drawPath(SDL_Renderer*, Cell&);
-	void drawClosedSet(SDL_Renderer*, Cell&);
+	Draw() = default;
+	Draw(Cell);
+    
+	void drawWalkable(SDL_Renderer*);
+	void drawObstacle(SDL_Renderer*);
+	void drawStart(SDL_Renderer*);
+	void drawEnd(SDL_Renderer*);
+	void drawPath(SDL_Renderer*);
 
-    void drawGrid();
-    void run();
+    void drawCell(SDL_Renderer*);
 };
 
-void Run::drawStart(SDL_Renderer *sdl_renderer, Cell& cell)
+Draw::Draw(Cell cell)
 {
-	SDL_SetRenderDrawColor(sdl_renderer, 0, 255, 0, 0);
+	this->cell = cell;
+}
+
+void Draw::drawStart(SDL_Renderer *sdl_renderer)
+{
+	SDL_SetRenderDrawColor(sdl_renderer, 0, 100, 255, 255);
 	SDL_Rect rect = cell.getRect();
 	SDL_RenderDrawRect(sdl_renderer, &rect);
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Run::drawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
+void Draw::drawEnd(SDL_Renderer *sdl_renderer)
 {
-	SDL_SetRenderDrawColor(sdl_renderer, 255, 0, 0, 0);
+	SDL_SetRenderDrawColor(sdl_renderer, 220, 0, 255, 255);
 	SDL_Rect rect = cell.getRect();
 	SDL_RenderDrawRect(sdl_renderer, &rect);
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Run::drawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
+void Draw::drawPath(SDL_Renderer *sdl_renderer)
+{	
+	SDL_SetRenderDrawColor(sdl_renderer, 227, 255, 255, 255);
+	SDL_Rect rect = cell.getRect();
+	SDL_RenderDrawRect(sdl_renderer, &rect);
+	SDL_RenderFillRect(sdl_renderer, &rect);
+}
+
+void Draw::drawObstacle(SDL_Renderer *sdl_renderer)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 0);
 	SDL_Rect rect = cell.getRect();
@@ -85,47 +97,36 @@ void Run::drawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
 	SDL_RenderFillRect(sdl_renderer, &rect);
 }
 
-void Run::drawWalkable(SDL_Renderer *sdl_renderer, Cell& cell)
-{
-	SDL_SetRenderDrawColor(sdl_renderer, 0, 34, 75, 0);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-}
-
-void Run::drawPath(SDL_Renderer *sdl_renderer, Cell& cell)
-{
-	SDL_SetRenderDrawColor(sdl_renderer, 255, 255, 0, 0);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-	SDL_RenderFillRect(sdl_renderer, &rect);
-}
-
-void Run::drawClosedSet(SDL_Renderer *sdl_renderer, Cell& cell)
-{
-	SDL_SetRenderDrawColor(sdl_renderer, 255, 165, 0, 0);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-	SDL_RenderFillRect(sdl_renderer, &rect);
-}
-
-void Run::drawGrid()
+void Draw::drawWalkable(SDL_Renderer *sdl_renderer)
 {	
-	auto myGrid = grid.getGrid();
-	for(auto cell : myGrid.getCellsVector())
-	{   
-		if(cell.IsStart())
-			drawStart(window.getRenderer(), cell);
-		if(cell.IsInPath())
-			drawPath(window.getRenderer(), cell);
-		if(cell.IsEnd())
-			drawEnd(window.getRenderer(), cell);
-		if(cell.IsWalkable())
-            drawWalkable(window.getRenderer(), cell);
-		if(!(cell.IsWalkable()))
-			drawObstacle(window.getRenderer(), cell);
-		
-	}
+	SDL_SetRenderDrawColor(sdl_renderer, 116, 111, 117, 255);
+	SDL_Rect rect = cell.getRect();
+	SDL_RenderDrawRect(sdl_renderer, &rect);
 }
+
+
+void Draw::drawCell(SDL_Renderer* sdl_renderer)
+{	
+	if(cell.IsStart())
+		drawStart(sdl_renderer);
+	if(cell.IsInPath())
+		drawPath(sdl_renderer);
+	if(cell.IsEnd())
+		drawEnd(sdl_renderer);
+	if(cell.IsWalkable())
+        drawWalkable(sdl_renderer);
+	if(!(cell.IsWalkable()))
+		drawObstacle(sdl_renderer);
+}
+
+class Run
+{
+	Window window;
+	PathFinding grid;
+	Draw draw;
+public:
+	void run();
+};
 
 void Run::run()
 {
@@ -162,10 +163,16 @@ void Run::run()
 					grid.setObstacle(x, y);
 			}
 		}
-		SDL_SetRenderDrawColor(window.getRenderer(), 255, 255, 255, 255);
+
+		SDL_SetRenderDrawColor(window.getRenderer(), 81, 81, 81, 255);
 		SDL_RenderClear(window.getRenderer());
 		
-        drawGrid();
+        for(auto cell: grid.getGrid().getCellsVector())
+		{	
+			Draw temp(cell);
+			draw = temp;
+			temp.drawCell(window.getRenderer());
+		}
 
 		grid.findPath();
 			
