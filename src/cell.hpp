@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <math.h>
 
-#define CELL_SIZE 60
+#define CELL_SIZE 45
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
@@ -28,7 +28,6 @@ class Cell
     int parentY;
     SDL_Rect sdl_rect;
     
-
 public:
     Cell();
     Cell(const int, const int);
