@@ -3,10 +3,12 @@
 #include <SDL2/SDL.h>
 
 #include <vector>
+#include <stack>
 #include <algorithm>
 #include <math.h>
+#include <time.h>
 
-#define CELL_SIZE 45
+#define CELL_SIZE 60
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
@@ -19,7 +21,6 @@ class Cell
     bool isStart;
     bool isEnd;
     bool isInPath;
-
 
     int hCost;
     int gCost;
@@ -57,7 +58,6 @@ public:
 
     bool IsStart() { return isStart; }
     bool IsEnd() { return isEnd; }
-    
     bool IsWalkable() { return walkable; }
     bool IsInPath() { return isInPath; }
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "grid.hpp"
-#include <unistd.h>
+#include "maze.hpp"
 
 class Window
 {
@@ -92,10 +91,9 @@ void Run::drawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
 
 void Run::drawPath(SDL_Renderer *sdl_renderer)
 {	
-
 	auto path = pathFinding.getPath().getPathVector();
 	
-	if(path.size() > 0)
+	if(path.size())
 	{
 		int redCoef = 220 / path.size();
 		int greenCoef = 80 / path.size();
@@ -142,7 +140,7 @@ void Run::drawGrid(SDL_Renderer* sdl_renderer)
 		if(!(cell.IsWalkable()))
 			drawObstacle(sdl_renderer, cell);
 	}
-
+	
 	drawPath(sdl_renderer);
 	SDL_RenderPresent(window.getRenderer());
 }
@@ -161,29 +159,29 @@ void Run::run()
 		{
 			if(sdl_event.type == SDL_QUIT)
 				isRunning = false;
-			else if(sdl_event.type == SDL_KEYDOWN)
-			{	// refactor
-				switch(sdl_event.key.keysym.sym)
-				{
-					case SDLK_ESCAPE:
-						isRunning = false;
-						break;
-					case SDLK_v:
-						vPressed();
-				}
-			}
-			else if(sdl_event.type == SDL_MOUSEMOTION)
+			else if(state[SDL_SCANCODE_ESCAPE])
 			{
-				pathFinding.getMouseCoordinates(x, y);
-				if(state[SDL_SCANCODE_C])
-					pathFinding.setObstacle(x, y);
-				if(state[SDL_SCANCODE_X])
-					pathFinding.setWalkable(x, y);
+				isRunning = false;
+				break;
+			}
+			else if(state[SDL_SCANCODE_V])
+			{
+				vPressed();
+			}
+			else if(state[SDL_SCANCODE_C])
+			{
+				getMouseCoordinates(x, y);
+				pathFinding.setObstacle(x, y);
+			}
+			else if(state[SDL_SCANCODE_X])
+			{
+				getMouseCoordinates(x, y);
+				pathFinding.setWalkable(x, y);
 			}
 			else if(sdl_event.type == SDL_MOUSEBUTTONDOWN)
 			{	
 				// refactor 
-				pathFinding.getMouseCoordinates(x, y);
+				getMouseCoordinates(x, y);
 
 				if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])
 					pathFinding.setStart(x, y);
@@ -193,7 +191,6 @@ void Run::run()
 		}
 		
 		drawGrid(window.getRenderer());
-
 		pathFinding.findPath();
     }
 }

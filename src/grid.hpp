@@ -17,14 +17,13 @@ public:
     void setWalkable(int, int);
 
     Cell& getCell(int, int);
-    void getStart(Cell&);
-    void getEnd(Cell&);
+    void getStart(Cell &);
+    void getEnd(Cell &);
 
     void moveCell(Cell cell);
     bool pathExists();
-	int heuristics(Cell&, Cell&);
-
 	void clearParents();
+    std::vector<Cell> getNeighbours(Cell);
 };
 
 Grid::Grid()
@@ -95,7 +94,7 @@ Cell &Grid::getCell(int x, int y)
     return *CellsVector.end();
 }
 
-void Grid::getStart(Cell& start)
+void Grid::getStart(Cell &start)
 {
 	for(int i = 0; i < CellsVector.size(); i++)
 	{
@@ -104,7 +103,7 @@ void Grid::getStart(Cell& start)
 	} 
 }
 
-void Grid::getEnd(Cell& end)
+void Grid::getEnd(Cell &end)
 {
 	for(int i = 0; i < CellsVector.size(); i++)
 	{
@@ -144,7 +143,35 @@ void Grid::clearParents()
 	}
 }
 
-int Grid::heuristics(Cell& cell1, Cell& cell2)
+std::vector<Cell> Grid::getNeighbours(Cell cell)
+{
+    std::vector<Cell> neighbours;
+
+    for(int i = -1; i <= 1; i++)
+    { 
+        for(int j = -1; j <= 1; j++)
+        {
+            if(i == 0 && j == 0)
+                continue;
+            
+            int x = cell.getX() + i;
+            int y = cell.getY() + j;
+
+            if(x >= 0 && x < (WINDOW_WIDTH / CELL_SIZE) && 
+			   y >= 0 && y < (WINDOW_HEIGHT / CELL_SIZE))
+                {
+					Cell temporary = getCell(x, y);
+					
+					if(temporary.IsWalkable())
+						neighbours.push_back(temporary);
+				}
+        }
+    }
+
+    return neighbours;
+}
+
+int heuristics(Cell &cell1, Cell &cell2)
 {
 	int x = abs(cell1.getX() - cell2.getX());
 	int y = abs(cell1.getY() - cell2.getY());
@@ -170,10 +197,8 @@ class PathFinding
     Grid grid;
     Path path;
     
-    void retracePath(Cell&, Cell&);
-    Cell getLowestFCostHCostCell(const std::vector<Cell>&);
-    void updateNeighbourCell(Cell&, Cell&, Cell& end, std::vector<Cell>&, std::vector<Cell>&);
-    bool containsVector(std::vector<Cell>, Cell&);
+    void retracePath(Cell &, Cell &);
+    void updateNeighbourCell(Cell &current, Cell &neighbour, Cell &end, std::vector<Cell> &openSet, std::vector<Cell> &closedSet);
 
 public:
     Grid getGrid() { return grid; }
@@ -183,13 +208,8 @@ public:
     void setEnd(int, int);
     void setObstacle(int, int);
     void setWalkable(int, int);
-
-    void getMouseCoordinates(int& , int&);
-
-    std::vector<Cell> getNeighbours(Cell);
+    
     void setPath(std::vector<Cell>);
-
-
     void findPath();
 };
 
@@ -213,51 +233,6 @@ void PathFinding::setWalkable(int x, int y)
     grid.setWalkable(x, y);
 }
 
-void PathFinding::getMouseCoordinates(int& x, int& y)
-{	
-	SDL_GetMouseState(&x, &y);
-
-	int tempX = x % CELL_SIZE;
-	int tempY = y % CELL_SIZE;
-	
-	x -= tempX;
-	y -= tempY;
-	
-	x = x / CELL_SIZE;
-	y = y / CELL_SIZE;
-}
-
-std::vector<Cell> PathFinding::getNeighbours(Cell cell)
-{
-    std::vector<Cell> neighbours;
-
-    for(int i = -1; i <= 1; i++)
-    { 
-        for(int j = -1; j <= 1; j++)
-        {
-            if(i == 0 && j == 0)
-                continue;
-            
-            int x = cell.getX() + i;
-            int y = cell.getY() + j;
-
-            if(x >= 0 && x < (WINDOW_WIDTH / CELL_SIZE) && 
-			   y >= 0 && y < (WINDOW_HEIGHT / CELL_SIZE))
-                {
-					Cell temporary = grid.getCell(x, y);
-					
-					if(temporary.IsWalkable())
-						neighbours.push_back(temporary);
-				}
-        }
-    }
-
-    if(neighbours.size() == 0)
-        path.clearPath();
-        
-    return neighbours;
-}
-
 void PathFinding::setPath(std::vector<Cell> vec)
 {
     path.clearPath();
@@ -272,19 +247,8 @@ void PathFinding::setPath(std::vector<Cell> vec)
         }
     }
 }
-
-bool PathFinding::containsVector(std::vector<Cell> cells, Cell& cell1)
-{
-    for(int i = 0; i < cells.size(); i++)
-    {
-        if(cell1 == cells.at(i))
-            return true;
-    }
-
-    return false;
-}
     
-void PathFinding::retracePath(Cell& start, Cell& end)
+void PathFinding::retracePath(Cell &start, Cell &end)
 {
     std::vector<Cell> path;
     Cell current = end;
@@ -297,42 +261,64 @@ void PathFinding::retracePath(Cell& start, Cell& end)
     setPath(path);
 }
 
-Cell PathFinding::getLowestFCostHCostCell(const std::vector<Cell>& cells)
+Cell getLowestFCostHCostCell(const std::vector<Cell> &cells)
 {
     Cell lowestCostCell = cells.at(0);
 
     for(auto cell : cells)
     {
         if(cell.fCost() < lowestCostCell.fCost() || (cell.fCost() == lowestCostCell.fCost() && cell.getHCost() < lowestCostCell.getHCost()))
-        {
             lowestCostCell = cell;
-        }
     }
 
     return lowestCostCell;
 }
 
-void PathFinding::updateNeighbourCell(Cell& current, Cell& neighbour, Cell& end, std::vector<Cell>& openSet, std::vector<Cell>& closedSet)
+void removeFromVector(std::vector<Cell> &vec, const Cell &element)
+{
+    vec.erase(std::remove(vec.begin(), vec.end(), element), vec.end());
+}
+
+void getMouseCoordinates(int &x, int&y)
+{	
+	SDL_GetMouseState(&x, &y);
+
+	int tempX = x % CELL_SIZE;
+	int tempY = y % CELL_SIZE;
+	
+	x -= tempX;
+	y -= tempY;
+	
+	x = x / CELL_SIZE;
+	y = y / CELL_SIZE;
+}
+
+bool containsVector(std::vector<Cell> &cells, Cell &cell1)
+{
+    for(int i = 0; i < cells.size(); i++)
+    {
+        if(cell1 == cells.at(i))
+            return true;    }
+
+    return false;
+}
+
+void PathFinding::updateNeighbourCell(Cell &current, Cell &neighbour, Cell &end, std::vector<Cell> &openSet, std::vector<Cell> &closedSet)
 {
     if(!(neighbour.IsWalkable()) || containsVector(closedSet, neighbour))
         return;
 
-    int newCostToNeighbour = current.getGCost() + grid.heuristics(current, neighbour);
+    int newCostToNeighbour = current.getGCost() + heuristics(current, neighbour);
     if(newCostToNeighbour < neighbour.getGCost() || !containsVector(openSet, neighbour))
     {
         neighbour.setGCost(newCostToNeighbour);
-        neighbour.setHCost(grid.heuristics(neighbour, end));
+        neighbour.setHCost(heuristics(neighbour, end));
         neighbour.setParent(current);
         grid.moveCell(neighbour);
 
         if(!containsVector(openSet, neighbour))
             openSet.push_back(neighbour);
     }
-}
-
-void removeFromVector(std::vector<Cell>& vec, const Cell& element)
-{
-    vec.erase(std::remove(vec.begin(), vec.end(), element), vec.end());
 }
 
 void PathFinding::findPath()
@@ -359,7 +345,7 @@ void PathFinding::findPath()
                 break;
             }
 
-            for(auto neighbour : getNeighbours(cell))
+            for(auto neighbour : grid.getNeighbours(cell))
                 updateNeighbourCell(cell, neighbour, end, openSet, closedSet);
         }
     }
