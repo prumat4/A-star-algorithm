@@ -100,7 +100,7 @@ void Run::drawPath(SDL_Renderer *sdl_renderer)
 
 		for(int i = 0; i < path.size(); i++)
 		{
-			SDL_Rect rect = path.at(i).getRect();
+			SDL_Rect rect = (*path.at(i)).getRect();
 			SDL_SetRenderDrawColor(sdl_renderer, (path.size() - i) * redCoef, i * greenCoef, 255, 255);
 			SDL_RenderDrawRect(sdl_renderer, &rect);
 			SDL_RenderFillRect(sdl_renderer, &rect);
@@ -180,7 +180,6 @@ void Run::run()
 			}
 			else if(sdl_event.type == SDL_MOUSEBUTTONDOWN)
 			{	
-				// refactor 
 				getMouseCoordinates(x, y);
 
 				if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])

@@ -17,10 +17,10 @@ class Cell
     int x;
     int y;
 
-    bool walkable;
-    bool isStart;
-    bool isEnd;
-    bool isInPath;
+    bool walkable { false };
+    bool isStart { false };
+    bool isEnd { false };
+    bool isInPath { false };
 
     int hCost;
     int gCost;
@@ -33,10 +33,10 @@ public:
     Cell();
     Cell(const int, const int);
     
-    bool operator == (const Cell&) const;
-    bool operator != (const Cell&) const;
+    bool operator == (const Cell &) const;
+    bool operator != (const Cell &) const;
 
-    Cell& operator = (const Cell&);
+    Cell& operator = (const Cell &);
     
     int fCost();
 
@@ -51,7 +51,7 @@ public:
 
     void clearParent();
 
-    void setParent(Cell&);
+    void setParent(Cell *);
 
     int getHCost() { return hCost; }
     int getGCost() { return gCost; }
@@ -146,10 +146,10 @@ Cell &Cell::operator =(const Cell &cell)
     return *this;
 }
 
-void Cell::setParent(Cell& parent)
+void Cell::setParent(Cell *parent)
 {
-    this->parentX = parent.x;
-    this->parentY = parent.y;
+    this->parentX = (*parent).x;
+    this->parentY = (*parent).y;
 }
 
 void Cell::clearParent()
