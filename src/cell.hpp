@@ -3,10 +3,8 @@
 #include <SDL2/SDL.h>
 
 #include <vector>
-#include <stack>
 #include <algorithm>
 #include <math.h>
-#include <time.h>
 
 #define CELL_SIZE 60
 #define WINDOW_WIDTH 1920

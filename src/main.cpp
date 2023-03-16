@@ -2,7 +2,6 @@
 
 int main()
 {
-    rand();
     Run maze;
     
     maze.run();

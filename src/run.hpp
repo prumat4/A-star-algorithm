@@ -93,7 +93,7 @@ void Run::drawPath(SDL_Renderer *sdl_renderer)
 {	
 	auto path = pathFinding.getPath().getPathVector();
 	
-	if(path.size())
+	if(path.size() > 0)
 	{
 		int redCoef = 220 / path.size();
 		int greenCoef = 80 / path.size();
@@ -128,6 +128,8 @@ void Run::drawGrid(SDL_Renderer* sdl_renderer)
 	SDL_SetRenderDrawColor(window.getRenderer(), 81, 81, 81, 255);
 	SDL_RenderClear(window.getRenderer());
 	
+	drawPath(sdl_renderer);
+
 	auto myGrid = pathFinding.getGrid().getCellsVector();
 	for(auto cell : myGrid)
 	{
@@ -140,8 +142,7 @@ void Run::drawGrid(SDL_Renderer* sdl_renderer)
 		if(!(cell.IsWalkable()))
 			drawObstacle(sdl_renderer, cell);
 	}
-	
-	drawPath(sdl_renderer);
+
 	SDL_RenderPresent(window.getRenderer());
 }
 
