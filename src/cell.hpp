@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <math.h>
 
-#define CELL_SIZE 30
+#define CELL_SIZE 60
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 

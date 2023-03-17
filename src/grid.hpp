@@ -199,8 +199,8 @@ class PathFinding
     void retracePath(Cell *, Cell *);
 
 public:
-    Grid getGrid() { return grid; }
-    Path getPath() { return path; }
+    Grid& getGrid() { return grid; }
+    Path& getPath() { return path; }
 
     void setStart(int, int);
     void setEnd(int, int);
@@ -355,4 +355,6 @@ void PathFinding::findPath()
         if(!pathExists)
             path.clearPath();
     }
+    else 
+        path.clearPath();
 }

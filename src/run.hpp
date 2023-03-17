@@ -1,151 +1,17 @@
 #pragma once
 
-#include "grid.hpp"
-
-class Window
-{
-    SDL_Window *sdl_window { nullptr };
-    SDL_Renderer *sdl_renderer { nullptr };
-public:
-
-    SDL_Window* getWindow() { return sdl_window; }
-    SDL_Renderer* getRenderer() { return sdl_renderer; }
-
-    Window();
-    ~Window();
-};
-
-Window::Window()
-{   
-    sdl_window = SDL_CreateWindow(
-        "A-star-algorithm",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
-        SDL_WINDOW_OPENGL
-    );
-
-    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED);
-
-    if(sdl_window == nullptr)
-    {
-		printf("Could not create window: %s", SDL_GetError());
-    }
-}
-
-Window::~Window()
-{
-    if(sdl_renderer)
-        SDL_DestroyRenderer(sdl_renderer);
-    
-    if(sdl_window)
-        SDL_DestroyWindow(sdl_window);
-}
-
+#include "menu.hpp"
 
 class Run
 {	
 	Window window;
     PathFinding pathFinding;
 
-	void drawWalkable(SDL_Renderer*, Cell&);
-	void drawObstacle(SDL_Renderer*, Cell&);
-	void drawStart(SDL_Renderer*, Cell&);
-	void drawEnd(SDL_Renderer*, Cell&);
-	void drawPath(SDL_Renderer*);
-
-	void drawRect(SDL_Renderer*, SDL_Rect &);
-
-	void vPressed();
-
 public:
 	Grid getGrid() { return pathFinding.getGrid(); }
 	
 	void run();
-    void drawGrid(SDL_Renderer*);
 };
-
-void Run::drawRect(SDL_Renderer *sdl_renderer, SDL_Rect &rect)
-{
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-	SDL_RenderFillRect(sdl_renderer, &rect);
-}
-
-void Run::vPressed()
-{	
-	Uint32 flags = SDL_GetWindowFlags(window.getWindow());
-    if(flags & SDL_WINDOW_FULLSCREEN)
-        SDL_SetWindowFullscreen(window.getWindow(), 0);
-    else
-        SDL_SetWindowFullscreen(window.getWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
-}
-
-void Run::drawStart(SDL_Renderer *sdl_renderer, Cell& cell)
-{
-	SDL_SetRenderDrawColor(sdl_renderer, 0, 80, 255, 255);
-	drawRect(sdl_renderer, cell.getRect());
-}
-
-void Run::drawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
-{
-	SDL_SetRenderDrawColor(sdl_renderer, 220, 0, 255, 255);
-	drawRect(sdl_renderer, cell.getRect());
-}
-
-void Run::drawPath(SDL_Renderer *sdl_renderer)
-{	
-	auto path = pathFinding.getPath().getPathVector();
-	
-	if(path.size() > 0)
-	{
-		int redCoef = 220 / path.size();
-		int greenCoef = 80 / path.size();
-
-		for(int i = 0; i < path.size(); i++)
-		{
-			SDL_Rect rect = (*path.at(i)).getRect();
-			SDL_SetRenderDrawColor(sdl_renderer, (path.size() - i) * redCoef, i * greenCoef, 255, 255);
-			SDL_RenderDrawRect(sdl_renderer, &rect);
-			SDL_RenderFillRect(sdl_renderer, &rect);
-		}
-	}
-}
-
-void Run::drawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
-{
-	SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 0);
-	drawRect(sdl_renderer, cell.getRect());
-}
-
-void Run::drawWalkable(SDL_Renderer *sdl_renderer, Cell& cell)
-{	
-	SDL_SetRenderDrawColor(sdl_renderer, 116, 111, 117, 255);
-	SDL_RenderDrawRect(sdl_renderer, &cell.getRect());
-}
-
-void Run::drawGrid(SDL_Renderer* sdl_renderer)
-{	
-	SDL_SetRenderDrawColor(window.getRenderer(), 81, 81, 81, 255);
-	SDL_RenderClear(window.getRenderer());
-	
-	drawPath(sdl_renderer);
-
-	auto myGrid = pathFinding.getGrid().getCellsVector();
-	for(auto cell : myGrid)
-	{
-		if(cell.IsStart())
-			drawStart(sdl_renderer, cell);
-		if(cell.IsEnd())
-			drawEnd(sdl_renderer, cell);
-		if(cell.IsWalkable())
-			drawWalkable(sdl_renderer, cell);
-		if(!(cell.IsWalkable()))
-			drawObstacle(sdl_renderer, cell);
-	}
-
-	SDL_RenderPresent(window.getRenderer());
-}
 
 void Run::run()
 {
@@ -168,7 +34,7 @@ void Run::run()
 			}
 			else if(state[SDL_SCANCODE_V])
 			{
-				vPressed();
+				window.vPressed();
 			}
 			else if(state[SDL_SCANCODE_C])
 			{
@@ -190,8 +56,9 @@ void Run::run()
 					pathFinding.setEnd(x,y);
 			}
 		}
-		
-		drawGrid(window.getRenderer());
+
+		window.drawGrid(pathFinding);
+		// drawGrid(window.getRenderer());
 		pathFinding.findPath();
     }
 }
