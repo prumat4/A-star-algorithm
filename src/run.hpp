@@ -1,6 +1,6 @@
 #pragma once
 
-#include "maze.hpp"
+#include "grid.hpp"
 
 class Window
 {
