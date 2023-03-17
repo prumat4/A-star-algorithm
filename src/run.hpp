@@ -55,6 +55,8 @@ class Run
 	void drawEnd(SDL_Renderer*, Cell&);
 	void drawPath(SDL_Renderer*);
 
+	void drawRect(SDL_Renderer*, SDL_Rect &);
+
 	void vPressed();
 
 public:
@@ -63,6 +65,12 @@ public:
 	void run();
     void drawGrid(SDL_Renderer*);
 };
+
+void Run::drawRect(SDL_Renderer *sdl_renderer, SDL_Rect &rect)
+{
+	SDL_RenderDrawRect(sdl_renderer, &rect);
+	SDL_RenderFillRect(sdl_renderer, &rect);
+}
 
 void Run::vPressed()
 {	
@@ -76,17 +84,13 @@ void Run::vPressed()
 void Run::drawStart(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 0, 80, 255, 255);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-	SDL_RenderFillRect(sdl_renderer, &rect);
+	drawRect(sdl_renderer, cell.getRect());
 }
 
 void Run::drawEnd(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 220, 0, 255, 255);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-	SDL_RenderFillRect(sdl_renderer, &rect);
+	drawRect(sdl_renderer, cell.getRect());
 }
 
 void Run::drawPath(SDL_Renderer *sdl_renderer)
@@ -111,16 +115,13 @@ void Run::drawPath(SDL_Renderer *sdl_renderer)
 void Run::drawObstacle(SDL_Renderer *sdl_renderer, Cell& cell)
 {
 	SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 0);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
-	SDL_RenderFillRect(sdl_renderer, &rect);
+	drawRect(sdl_renderer, cell.getRect());
 }
 
 void Run::drawWalkable(SDL_Renderer *sdl_renderer, Cell& cell)
 {	
 	SDL_SetRenderDrawColor(sdl_renderer, 116, 111, 117, 255);
-	SDL_Rect rect = cell.getRect();
-	SDL_RenderDrawRect(sdl_renderer, &rect);
+	SDL_RenderDrawRect(sdl_renderer, &cell.getRect());
 }
 
 void Run::drawGrid(SDL_Renderer* sdl_renderer)

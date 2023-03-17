@@ -59,7 +59,7 @@ public:
     bool IsWalkable() { return walkable; }
     bool IsInPath() { return isInPath; }
 
-    SDL_Rect getRect() { return sdl_rect; }
+    SDL_Rect& getRect() { return sdl_rect; }
 
     void setIsStart();
 	void setIsEnd();
