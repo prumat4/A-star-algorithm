@@ -2,6 +2,21 @@
 
 #include "grid.hpp"
 
+#define RUN_ALGORITHM_X_POS 700
+#define RUN_ALGORITHM_Y_POS 200
+#define RUN_ALGORITHM_WIDTH 520
+#define RUN_ALGORITHM_HEIGHT 120
+
+#define RUN_INSTRUCTION_X_POS 700
+#define RUN_INSTRUCTION_Y_POS 400
+#define RUN_INSTRUCTION_WIDTH 520
+#define RUN_INSTRUCTION_HEIGHT 120
+
+#define EXIT_X_POS 700 
+#define EXIT_Y_POS 700
+#define EXIT_WIDTH 520
+#define EXIT_HEIGHT 120
+
 class Button 
 {
     int buttonWidth;
@@ -10,27 +25,50 @@ class Button
     int x;
     int y;
 
-    SDL_Rect rectangle;
+    SDL_Surface *sdl_image;
+    SDL_Texture *sdl_texture;
 
-    void updateRect();
+    void updateRect(SDL_Rect &rect);
     void setX(int x) { this->x = x; }
     void setY(int y) { this->y = y; }
     void setWidth(int width) { buttonWidth = width; }
     void setHeight(int height) { buttonHeight = height; }
 
 public:
+
+    Button& operator =(const Button &button);
     void set(int, int, int, int);
-    SDL_Rect getRect() { return rectangle; }    
+    
+    SDL_Texture* getTexture() { return sdl_texture; }
+    SDL_Surface* getSurface() { return sdl_image; }
+    
+    void setSurface(SDL_Surface *surface) { this->sdl_image = surface; }
+    void setTexture(SDL_Texture *texture) { this->sdl_texture = texture; }
 
     Button();
+    ~Button();
 };
 
-void Button::updateRect()
+Button &Button::operator=(const Button &button)
 {
-    rectangle.x = x;
-    rectangle.y = y;
-    rectangle.w = buttonWidth;
-    rectangle.h = buttonHeight; 
+    this->x = button.x;
+    this->y = button.y;
+
+    this->buttonHeight = button.buttonHeight;
+    this->buttonWidth = button.buttonWidth;
+    
+    this->sdl_image = button.sdl_image;
+    this->sdl_texture = button.sdl_texture;
+
+    return *this;
+}
+
+void Button::updateRect(SDL_Rect &rect)
+{
+    rect.x = x;
+    rect.y = y;
+    rect.w = buttonWidth;
+    rect.h = buttonHeight; 
 }
 
 void Button::set(int x, int y, int widht, int height)
@@ -39,8 +77,6 @@ void Button::set(int x, int y, int widht, int height)
     setY(y);
     setWidth(widht);
     setHeight(height);
-
-    updateRect();
 }
 
 Button::Button()
@@ -50,32 +86,50 @@ Button::Button()
 
     buttonHeight = 0;
     buttonWidth = 0;
+}
 
-    rectangle.x = x;
-    rectangle.y = y;
-    rectangle.w = buttonWidth;
-    rectangle.h = buttonHeight;
+Button::~Button()
+{
+    if(sdl_texture)
+        SDL_DestroyTexture(sdl_texture);
+
+    if(sdl_image)
+        SDL_FreeSurface(sdl_image);
 }
 
 class Menu
 {
-    Button runAlgorithm;
-    Button runMaze;
-    Button exit;
+    Button aStarButton;
+    Button instructionButton;
+    Button exitButton;
 
 public: 
     Menu();
 
-    Button& getRunAlgorithmButton() { return runAlgorithm; }
-    Button& getRunMazeButton() { return runMaze; }
-    Button& getExitButton() { return exit; }
+    Button& getRunAlgorithmButton() { return aStarButton; }
+    Button& getInstructionButton() { return instructionButton; }
+    Button& getExitButton() { return exitButton; }
 };
 
 Menu::Menu()
 {
-    runAlgorithm.set(700, 200, 520, 120);
-    runMaze.set(700, 400, 520, 120);
-    exit.set(700, 700, 520, 120);
+    aStarButton.set(
+        RUN_ALGORITHM_X_POS, 
+        RUN_ALGORITHM_Y_POS, 
+        RUN_ALGORITHM_WIDTH, 
+        RUN_ALGORITHM_HEIGHT);
+
+    instructionButton.set(
+        RUN_INSTRUCTION_X_POS, 
+        RUN_INSTRUCTION_Y_POS, 
+        RUN_INSTRUCTION_WIDTH, 
+        RUN_INSTRUCTION_HEIGHT);
+
+    exitButton.set(
+        EXIT_X_POS, 
+        EXIT_Y_POS, 
+        EXIT_WIDTH, 
+        EXIT_HEIGHT);
 }
 
 class Window
@@ -92,13 +146,13 @@ class Window
 	void drawEnd(Cell&);
 	void drawPath(Path &);
 
-    void drawButton(Button &);
-
+    void drawAStarButton();
+    void drawInstructionButton();
+    void drawExitButton();
 public:
+    void drawAStarButtonAimed();
     SDL_Window* getWindow() { return sdl_window; }
     SDL_Renderer* getRenderer() { return sdl_renderer; }
-
-	void vPressed();
 
     void drawGrid(PathFinding pathFinding);
     void drawMenu(); 
@@ -133,15 +187,6 @@ Window::~Window()
     
     if(sdl_window)
         SDL_DestroyWindow(sdl_window);
-}
-
-void Window::vPressed()
-{	
-	Uint32 flags = SDL_GetWindowFlags(getWindow());
-    if(flags & SDL_WINDOW_FULLSCREEN)
-        SDL_SetWindowFullscreen(getWindow(), 0);
-    else
-        SDL_SetWindowFullscreen(getWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
 
 void Window::drawRect(SDL_Rect &rect)
@@ -221,27 +266,53 @@ void Window::drawGrid(PathFinding pathFinding)
 		if(!(cell.IsWalkable()))
 			drawObstacle(cell);
 	}
-
-    drawMenu();
-
 	SDL_RenderPresent(sdl_renderer);
 }
 
-void Window::drawButton(Button &button)
+void Window::drawAStarButton()
 {
-    SDL_Rect rect = button.getRect();
-	SDL_SetRenderDrawColor(sdl_renderer, 255, 0, 0, 0);
-    SDL_RenderDrawRect(sdl_renderer, &rect);
-    SDL_RenderFillRect(sdl_renderer, &rect);
+    auto button = menu.getRunAlgorithmButton();
+    button.setSurface(SDL_LoadBMP("../images/a-star-button.bmp"));
+    button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
+    SDL_Rect dstrect = { RUN_ALGORITHM_X_POS, RUN_ALGORITHM_Y_POS, RUN_ALGORITHM_WIDTH, RUN_ALGORITHM_HEIGHT };
+    SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
+}
+
+void Window::drawInstructionButton()
+{
+    auto button = menu.getInstructionButton();
+    button.setSurface(SDL_LoadBMP("../images/instruction-button.bmp"));
+    button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
+    SDL_Rect dstrect = { RUN_INSTRUCTION_X_POS, RUN_INSTRUCTION_Y_POS, RUN_INSTRUCTION_WIDTH, RUN_INSTRUCTION_HEIGHT };
+    SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
+}
+
+void Window::drawExitButton()
+{
+    auto button = menu.getExitButton();
+    button.setSurface(SDL_LoadBMP("../images/exit-button.bmp"));
+    button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
+    SDL_Rect dstrect = { EXIT_X_POS, EXIT_Y_POS, EXIT_WIDTH, EXIT_HEIGHT };
+    SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
+}
+
+void Window::drawAStarButtonAimed()
+{
+    auto button = menu.getRunAlgorithmButton();
+    button.setSurface(SDL_LoadBMP("../images/a-star-button-pressed.bmp"));
+    button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
+    SDL_Rect dstrect = { RUN_ALGORITHM_X_POS, RUN_ALGORITHM_Y_POS, RUN_ALGORITHM_WIDTH, RUN_ALGORITHM_HEIGHT };
+    SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
+    SDL_RenderPresent(sdl_renderer);
 }
 
 void Window::drawMenu()
 {   
-    drawButton(menu.getRunAlgorithmButton());
-    drawButton(menu.getRunMazeButton());
-    drawButton(menu.getExitButton());
+	SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 0);
 
-    // SDL_Surface * image = SDL_LoadBMP("../images/1.bmp");
-    // SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, image);
-    // SDL_RenderCopy(sdl_renderer, texture, NULL, NULL);
+    drawAStarButton();
+    drawInstructionButton();
+    drawExitButton();
+    
+    SDL_RenderPresent(sdl_renderer);
 }

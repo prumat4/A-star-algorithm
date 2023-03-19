@@ -130,7 +130,6 @@ bool Grid::startAndEndExists()
 
     if(s == 1 && e == 1)
         return true;
-
     else return false;
 }
 
@@ -153,17 +152,17 @@ std::vector<Cell*> Grid::getNeighbours(Cell *cell)
             if(i == 0 && j == 0)
                 continue;
             
-            int x = (*cell).getX() + i;
-            int y = (*cell).getY() + j;
+            int x = cell->getX() + i;
+            int y = cell->getY() + j;
 
-            if(x >= 0 && x < (WINDOW_WIDTH / CELL_SIZE) && 
-			   y >= 0 && y < (WINDOW_HEIGHT / CELL_SIZE))
-                {
-					Cell *temporary = getCell(x, y);
+            if(x >= 0 && x < (WINDOW_WIDTH / CELL_SIZE) 
+            && y >= 0 && y < (WINDOW_HEIGHT / CELL_SIZE))
+            {
+				Cell *temporary = getCell(x, y);
 					
-					if((*temporary).IsWalkable())
-						neighbours.push_back(temporary);
-				}
+				if(temporary->IsWalkable())
+					neighbours.push_back(temporary);
+			}
         }
     }
 
@@ -172,8 +171,8 @@ std::vector<Cell*> Grid::getNeighbours(Cell *cell)
 
 int heuristics(Cell *cell1, Cell *cell2)
 {
-	int x = abs((*cell1).getX() - (*cell2).getX());
-	int y = abs((*cell1).getY() - (*cell2).getY());
+	int x = abs(cell1->getX() - cell2->getX());
+	int y = abs(cell1->getY() - cell2->getY());
 
 	if(x > y)
 		return 14*y + 10*(x - y);
@@ -251,10 +250,10 @@ void PathFinding::retracePath(Cell *start, Cell *end)
     std::vector<Cell*> vec;
     Cell *current = end;
     
-    while(!(*current).IsStart())
+    while(!current->IsStart())
     {
-        vec.push_back(grid.getCell((*current).getX(), (*current).getY()));
-        current = grid.getCell((*current).getParentX(), (*current).getParentY());
+        vec.push_back(grid.getCell(current->getX(), current->getY()));
+        current = grid.getCell(current->getParentX(), current->getParentY());
     }
 
     if(vec.size() > 1)
@@ -267,7 +266,7 @@ Cell* getLowestFCostHCostCell(const std::vector<Cell*> &cells)
 
     for(auto cell : cells)
     {
-        if((*cell).fCost() < (*lowestCostCell).fCost() || ((*cell).fCost() == (*lowestCostCell).fCost() && (*cell).getHCost() < (*lowestCostCell).getHCost()))
+        if((*cell).fCost() < lowestCostCell->fCost() || (cell->fCost() == lowestCostCell->fCost() && (cell->getHCost() < (lowestCostCell->getHCost()))))
             lowestCostCell = cell;
     }
 
@@ -308,13 +307,12 @@ void updateNeighbourCell(Cell *current, Cell *neighbour, Cell *end, std::vector<
     if(!((*neighbour).IsWalkable()) || containsVector(closedSet, neighbour))
         return;
 
-    int newCostToNeighbour = (*current).getGCost() + heuristics(current, neighbour);
-    if(newCostToNeighbour < (*neighbour).getGCost() || !containsVector(openSet, neighbour))
+    int newCostToNeighbour = current->getGCost() + heuristics(current, neighbour);
+    if(newCostToNeighbour < neighbour->getGCost() || !containsVector(openSet, neighbour))
     {
-        (*neighbour).setGCost(newCostToNeighbour);
-        (*neighbour).setHCost(heuristics(neighbour, end));
-        (*neighbour).setParent(current);
-        // grid.moveCell(neighbour);
+        neighbour->setGCost(newCostToNeighbour);
+        neighbour->setHCost(heuristics(neighbour, end));
+        neighbour->setParent(current);
 
         if(!containsVector(openSet, neighbour))
             openSet.push_back(neighbour);
@@ -341,7 +339,7 @@ void PathFinding::findPath()
             removeFromVector(openSet, cell);
             closedSet.push_back(cell);
 
-            if((*cell).IsEnd())
+            if(cell->IsEnd())
             {
                 retracePath(start, end);
                 pathExists = true;

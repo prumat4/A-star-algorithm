@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 
+#include <time.h>
 #include <vector>
 #include <algorithm>
 #include <math.h>
@@ -28,6 +29,8 @@ class Cell
     SDL_Rect sdl_rect;
     
 public:
+    bool isVisited { false };
+    
     Cell();
     Cell(const int, const int);
     
