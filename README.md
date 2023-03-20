@@ -21,3 +21,16 @@ In addition to the pathfinding functionality, the program also includes a simple
 4. run ./A-star-algorithm 
 
 ## Here some more output
+![Screenshot from 2023-03-20 21-49-31](https://user-images.githubusercontent.com/108902150/226463275-2de3d8de-3e01-4af9-a6da-7597ad1097f4.png)
+
+![Screenshot from 2023-03-20 21-50-17](https://user-images.githubusercontent.com/108902150/226463421-09f5697f-1ad6-419d-afb7-61eb9ee05016.png)
+
+![Screenshot from 2023-03-20 21-51-15](https://user-images.githubusercontent.com/108902150/226463427-df688fa3-a8d4-41a4-9b13-5e897105cb16.png)
+
+![Screenshot from 2023-03-20 21-54-23](https://user-images.githubusercontent.com/108902150/226463429-d002bae8-51a0-4ffb-bb75-20399cded359.png)
+
+![Screenshot from 2023-03-20 21-57-22](https://user-images.githubusercontent.com/108902150/226463431-c378b17a-3e0d-4327-a615-a52151def281.png)
+
+![Screenshot from 2023-03-20 21-58-38](https://user-images.githubusercontent.com/108902150/226463435-8de826ad-ca1a-4df4-8670-c2ef32eafeb8.png)
+
+![Screenshot from 2023-03-20 21-58-42](https://user-images.githubusercontent.com/108902150/226463436-5623c504-5bbb-47ba-87d3-ef332f790018.png)
