@@ -24,6 +24,8 @@ class Button
 
     int x;
     int y;
+    
+    bool isAimed { false };
 
     SDL_Surface *sdl_image;
     SDL_Texture *sdl_texture;
@@ -39,6 +41,10 @@ public:
     Button& operator =(const Button &button);
     void set(int, int, int, int);
     
+    bool IsAimed() { return isAimed; }
+
+    void changeAimedStatus(bool var) { isAimed = var; }
+
     SDL_Texture* getTexture() { return sdl_texture; }
     SDL_Surface* getSurface() { return sdl_image; }
     
@@ -46,7 +52,6 @@ public:
     void setTexture(SDL_Texture *texture) { this->sdl_texture = texture; }
 
     Button();
-    ~Button();
 };
 
 Button &Button::operator=(const Button &button)
@@ -59,6 +64,7 @@ Button &Button::operator=(const Button &button)
     
     this->sdl_image = button.sdl_image;
     this->sdl_texture = button.sdl_texture;
+    this->isAimed = button.isAimed;
 
     return *this;
 }
@@ -88,15 +94,6 @@ Button::Button()
     buttonWidth = 0;
 }
 
-Button::~Button()
-{
-    if(sdl_texture)
-        SDL_DestroyTexture(sdl_texture);
-
-    if(sdl_image)
-        SDL_FreeSurface(sdl_image);
-}
-
 class Menu
 {
     Button aStarButton;
@@ -109,6 +106,10 @@ public:
     Button& getRunAlgorithmButton() { return aStarButton; }
     Button& getInstructionButton() { return instructionButton; }
     Button& getExitButton() { return exitButton; }
+
+    void aStarAimed(bool var) { aStarButton.changeAimedStatus(var); }
+    void instructionAimed(bool var) { instructionButton.changeAimedStatus(var); }
+    void exitAimed(bool var) { exitButton.changeAimedStatus(var); }
 };
 
 Menu::Menu()
@@ -150,12 +151,16 @@ class Window
     void drawInstructionButton();
     void drawExitButton();
 public:
-    void drawAStarButtonAimed();
     SDL_Window* getWindow() { return sdl_window; }
     SDL_Renderer* getRenderer() { return sdl_renderer; }
 
     void drawGrid(PathFinding pathFinding);
     void drawMenu(); 
+    void drawInstruction();
+
+    void aStarAimed(bool var) { menu.aStarAimed(var); }
+    void instructionAimed(bool var) { menu.instructionAimed(var); }
+    void exitAimed(bool var) { menu.exitAimed(var); }
 
     Window();
     ~Window();
@@ -231,6 +236,8 @@ void Window::drawWalkable(Cell& cell)
 
 void Window::drawPath(Path &path)
 {	
+    SDL_RenderClear(sdl_renderer);
+
     auto _path = path.getPathVector();
 	if(_path.size() > 0)
 	{
@@ -272,7 +279,12 @@ void Window::drawGrid(PathFinding pathFinding)
 void Window::drawAStarButton()
 {
     auto button = menu.getRunAlgorithmButton();
-    button.setSurface(SDL_LoadBMP("../images/a-star-button.bmp"));
+    
+    if(button.IsAimed())
+        button.setSurface(SDL_LoadBMP("../images/a-star-button-pressed.bmp"));
+    else 
+        button.setSurface(SDL_LoadBMP("../images/a-star-button.bmp"));
+
     button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
     SDL_Rect dstrect = { RUN_ALGORITHM_X_POS, RUN_ALGORITHM_Y_POS, RUN_ALGORITHM_WIDTH, RUN_ALGORITHM_HEIGHT };
     SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
@@ -281,7 +293,12 @@ void Window::drawAStarButton()
 void Window::drawInstructionButton()
 {
     auto button = menu.getInstructionButton();
-    button.setSurface(SDL_LoadBMP("../images/instruction-button.bmp"));
+    
+    if(button.IsAimed())
+        button.setSurface(SDL_LoadBMP("../images/instruction-button-pressed.bmp"));
+    else
+        button.setSurface(SDL_LoadBMP("../images/instruction-button.bmp"));
+    
     button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
     SDL_Rect dstrect = { RUN_INSTRUCTION_X_POS, RUN_INSTRUCTION_Y_POS, RUN_INSTRUCTION_WIDTH, RUN_INSTRUCTION_HEIGHT };
     SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
@@ -290,29 +307,39 @@ void Window::drawInstructionButton()
 void Window::drawExitButton()
 {
     auto button = menu.getExitButton();
-    button.setSurface(SDL_LoadBMP("../images/exit-button.bmp"));
+
+    if(button.IsAimed())
+        button.setSurface(SDL_LoadBMP("../images/exit-button-pressed.bmp"));
+    else
+        button.setSurface(SDL_LoadBMP("../images/exit-button.bmp"));
+        
     button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
     SDL_Rect dstrect = { EXIT_X_POS, EXIT_Y_POS, EXIT_WIDTH, EXIT_HEIGHT };
     SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
 }
 
-void Window::drawAStarButtonAimed()
-{
-    auto button = menu.getRunAlgorithmButton();
-    button.setSurface(SDL_LoadBMP("../images/a-star-button-pressed.bmp"));
-    button.setTexture(SDL_CreateTextureFromSurface(sdl_renderer, button.getSurface()));
-    SDL_Rect dstrect = { RUN_ALGORITHM_X_POS, RUN_ALGORITHM_Y_POS, RUN_ALGORITHM_WIDTH, RUN_ALGORITHM_HEIGHT };
-    SDL_RenderCopy(sdl_renderer, button.getTexture(), NULL, &dstrect);
-    SDL_RenderPresent(sdl_renderer);
-}
-
 void Window::drawMenu()
 {   
-	SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(sdl_renderer);
+	SDL_SetRenderDrawColor(sdl_renderer, 151, 151, 151, 255);
 
     drawAStarButton();
     drawInstructionButton();
     drawExitButton();
     
     SDL_RenderPresent(sdl_renderer);
+}
+
+void Window::drawInstruction()
+{
+    SDL_RenderClear(sdl_renderer);
+
+    SDL_Surface *image = SDL_LoadBMP("../images/instruction.bmp");
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(sdl_renderer, image);
+
+    SDL_RenderCopy(sdl_renderer, texture, NULL, NULL);
+    SDL_RenderPresent(sdl_renderer);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(image);
 }

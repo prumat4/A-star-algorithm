@@ -4,6 +4,7 @@
 
 bool runAlgorithmAimed(int &x, int &y)
 {
+	SDL_GetMouseState(&x, &y);
 	return x >= RUN_ALGORITHM_X_POS 
 		&& x <= RUN_ALGORITHM_X_POS + RUN_ALGORITHM_WIDTH 
 		&& y >= RUN_ALGORITHM_Y_POS 
@@ -12,6 +13,8 @@ bool runAlgorithmAimed(int &x, int &y)
 
 bool runInstructionAimed(int &x, int &y)
 {
+	SDL_GetMouseState(&x, &y);
+
 	return x >= RUN_INSTRUCTION_X_POS 
 		&& x <= RUN_INSTRUCTION_X_POS + RUN_INSTRUCTION_WIDTH 
 		&& y >= RUN_INSTRUCTION_Y_POS 
@@ -20,6 +23,8 @@ bool runInstructionAimed(int &x, int &y)
 
 bool exitAimed(int &x ,int &y)
 {
+	SDL_GetMouseState(&x, &y);
+
 	return x >= EXIT_X_POS 
 		&& x <= EXIT_X_POS + EXIT_WIDTH 
 		&& y >= EXIT_Y_POS 
@@ -36,21 +41,77 @@ class Run
 	Window window;
     PathFinding pathFinding;
 
+	void handleAStarAiming(int &, int &);
+	void handleInstructionAiming(int &, int &);
+	void handleExitAiming(int &, int&);
+	
 public:
 	Grid getGrid() { return pathFinding.getGrid(); }
 	
+	void handleAiming(int &x, int& y);
+
 	void runAStar(bool &);
 	void runInstruction(bool &);
 	void run();
 };
 
+void Run::handleAStarAiming(int &x, int &y)
+{
+	if(runAlgorithmAimed(x, y))
+		window.aStarAimed(true);
+	if(!runAlgorithmAimed(x, y))
+		window.aStarAimed(false);
+}
+
+void Run::handleInstructionAiming(int &x, int&y)
+{
+	if(runInstructionAimed(x,y))
+		window.instructionAimed(true);
+	if(!runInstructionAimed(x,y))
+		window.instructionAimed(false);
+}
+
+void Run::handleExitAiming(int &x, int &y)
+{
+	if(exitAimed(x,y))
+		window.exitAimed(true);
+	if(!exitAimed(x,y))
+		window.exitAimed(false);
+}
+
+void Run::handleAiming(int &x, int &y)
+{
+	handleAStarAiming(x, y);
+	handleInstructionAiming(x, y);
+	handleExitAiming(x , y);
+}
+
 void Run::runInstruction(bool &running)
 {
 	bool isRunning = true;
+	const Uint8* state = SDL_GetKeyboardState(NULL);
 	
-	
+	SDL_Event sdl_event;
 	while(isRunning)
-		window.drawGrid(pathFinding);
+	{
+		window.drawInstruction();
+		while(SDL_PollEvent(&sdl_event) != 0)
+		{
+			if(sdl_event.type == SDL_QUIT)
+			{
+				isRunning = false;
+				running = false;
+				SDL_RenderClear(window.getRenderer());
+				break;
+			}
+			if(state[SDL_SCANCODE_ESCAPE])
+			{
+				isRunning = false;
+				SDL_RenderClear(window.getRenderer());
+				break;
+			}
+		}
+	}
 }
 
 void Run::runAStar(bool &running)
@@ -75,6 +136,7 @@ void Run::runAStar(bool &running)
 			{
 				isRunning = false;
 				running = false;
+				SDL_RenderClear(window.getRenderer());
 				break;
 			}
 			if(state[SDL_SCANCODE_C])
@@ -108,21 +170,24 @@ void Run::run()
 		{	
 			if(menuRunning)
 				window.drawMenu();
+			handleAiming(x, y);
 			if(mouseButtonClicked(sdl_event))
 			{
-				SDL_GetMouseState(&x, &y);
 				if(runAlgorithmAimed(x, y))
-				{
-					// window.drawAStarButtonAimed();
 					runAStar(running);
-				}
 				if(runInstructionAimed(x ,y))
 					runInstruction(running);
 				if(exitAimed(x ,y))
+				{
 					running = false;
+					SDL_RenderClear(window.getRenderer());
+				}
 			}
 			if(sdl_event.type == SDL_QUIT)
+			{
 				running = false;
+				SDL_RenderClear(window.getRenderer());
+			}
 		}
     }
 }
