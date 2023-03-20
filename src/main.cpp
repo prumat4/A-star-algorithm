@@ -2,10 +2,9 @@
 
 int main()
 {
-    srand(time(NULL));
-    Run maze;
+    Run game;
     
-    maze.run();
+    game.run();
     
     return 0;
 }

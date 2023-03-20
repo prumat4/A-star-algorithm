@@ -2,7 +2,6 @@
 
 #include <SDL2/SDL.h>
 
-#include <time.h>
 #include <vector>
 #include <algorithm>
 #include <math.h>
@@ -19,7 +18,6 @@ class Cell
     bool walkable { false };
     bool isStart { false };
     bool isEnd { false };
-    bool isInPath { false };
 
     int hCost;
     int gCost;
@@ -60,7 +58,6 @@ public:
     bool IsStart() { return isStart; }
     bool IsEnd() { return isEnd; }
     bool IsWalkable() { return walkable; }
-    bool IsInPath() { return isInPath; }
 
     SDL_Rect& getRect() { return sdl_rect; }
 
@@ -68,7 +65,6 @@ public:
 	void setIsEnd();
 	void setWalkable();
 	void setObstacle();
-	void setIsInPath();
 };
 
 Cell::Cell()
@@ -82,7 +78,6 @@ Cell::Cell()
 	walkable = true;
 	isStart = false;
 	isEnd = false;
-	isInPath = false;
 
     hCost = 0;
     gCost = 0;
@@ -104,7 +99,6 @@ Cell::Cell(int x, int y)
 	walkable = true;
 	isStart = false;
 	isEnd = false;
-	isInPath = false;
 
     hCost = 0;
     gCost = 0;
@@ -134,7 +128,6 @@ Cell &Cell::operator =(const Cell &cell)
     this->walkable = cell.walkable;
     this->isEnd = cell.isEnd;
     this->isStart = cell.isStart;
-    this->isInPath = cell.isInPath;
 
     this->hCost = cell.hCost;
     this->gCost = cell.gCost;
@@ -179,7 +172,6 @@ void Cell::setIsStart()
 	isStart = true;
 	isEnd = false;
 	walkable = true;
-	isInPath = false;
 }
 
 void Cell::setIsEnd()
@@ -187,7 +179,6 @@ void Cell::setIsEnd()
 	isEnd = true;
 	isStart = false;
 	walkable = true;
-	isInPath = false;
 }
 
 void Cell::setWalkable()
@@ -195,7 +186,6 @@ void Cell::setWalkable()
     isEnd = false;
     isStart = false;
     walkable = true;
-	isInPath = false;
 }
 
 void Cell::setObstacle()
@@ -203,13 +193,4 @@ void Cell::setObstacle()
     isEnd = false;
     isStart = false;
     walkable = false;
-	isInPath = false;
-}
-
-void Cell::setIsInPath()
-{
-	isEnd = false;
-    isStart = false;
-    walkable = true;
-	isInPath = true;
 }
